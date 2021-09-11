@@ -62,7 +62,7 @@
 
 </head>
 <body>
-	<span>【GPXエディタ V1.0】<span><br>
+	<span>【GPXエディタ V1.1】<span><br>
 	<label for="selfile"><b>画面にGPXファイルをドロップするか、ボタンを押してファイルを選択してください。</b></label>
 	<input type="file" multiple id="selfile"><br>
 
@@ -1557,6 +1557,10 @@ function divide_route(){
 	let header = routeTxt.substring( 0, routeTxt.indexOf("<trk>") );
 	let routeTxtDiv = routeTxt.split(MarkTimeTxt);
 	let route1txt = routeTxtDiv[0];
+	if ( routeTxtDiv.length > 2 ){
+		for ( let i = 1; i < routeTxtDiv.length - 1 ; i++ ){ routeTxtDiv[ i ] += MarkTimeTxt; }
+		for ( let i = 2; i < routeTxtDiv.length ; i++ ){ routeTxtDiv[ 1 ] += routeTxtDiv[ i ]; }
+	}
 	let route2txt = routeTxtDiv[1];
 	route2txt = route1txt.substring( route1txt.lastIndexOf("<trkpt lat") ) + MarkTimeTxt + route2txt;
 	route1txt = route1txt.substring( 0, route1txt.lastIndexOf("<trkpt lat") );
