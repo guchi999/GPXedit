@@ -62,7 +62,7 @@
 
 </head>
 <body>
-	<span>【GPXエディタ V1.1】<span><br>
+	<span>【GPXエディタ V1.2】<span><br>
 	<label for="selfile"><b>画面にGPXファイルをドロップするか、ボタンを押してファイルを選択してください。</b></label>
 	<input type="file" multiple id="selfile"><br>
 
@@ -186,11 +186,11 @@ function after_file_read(readTxt, GpxFileName){
 }
 
 // 文字列entStrのpinterの位置から<trkptを検索しtrkptの経度、緯度、標高、時間を返す
-// 引数：(検索文字列、検索位置) 返値：[pointer, Lat, Lon, ele, strTime] "trkpt"が見つからない時はpointerに-1
+// 引数：(検索文字列、検索位置) 返値：[pointer, Lat, Lon, ele, strTime, trkptStr] "trkpt"が見つからない時はpointerに-1
 function get_trkptDat(entStr, pointer){
 	pointer = entStr.indexOf("<trkpt",pointer);
 	if (pointer === -1){ 
-		return trkpArr = [pointer, , , ,"" ]; 
+		return trkpArr = [pointer, , , ,"" ,""]; 
 	}
 	let trkptStr = entStr.substring(pointer, entStr.indexOf("</trkpt>",pointer)+8);
 	let Latpt = trkptStr.indexOf("lat=");
@@ -209,7 +209,7 @@ function get_trkptDat(entStr, pointer){
 	}else{
 		strTime = "";
 	}
-	return [pointer, parseFloat(strLat), parseFloat(strLon), parseFloat(strEle), strTime];
+	return [pointer, parseFloat(strLat), parseFloat(strLon), parseFloat(strEle), strTime, trkptStr];
 }
 
 // GPXファイルのデータを Routes{} に格納
@@ -239,16 +239,19 @@ function make_route_datArr(readTxt, GpxFileName, mapfit = 0){
 			pointer2 = readTxt.indexOf("</trk>", pointer);
 			pointer2 = readTxt.lastIndexOf("<trkpt", pointer2);
 			trkptDat = {};
-			let latlon = [], ele = [], time = [];
+			let latlon = [], ele = [], time = [], trkptStrPre = "";
 		// trackのデータ配列 trkptDat = { latlon:[], ele:[], time:[] } を作成するループ
 			while (pointer < pointer2){
 				let trkpArr = get_trkptDat(readTxt, pointer);
 				if ( trkpArr[0] === -1 ){ breake; }
+				if ( trkptStrPre != trkpArr[5] ){
+					latlon.push( [ trkpArr[1], trkpArr[2] ] );
+					if (  Number.isNaN(trkpArr[3]) ){ NoEleFlag = 1; }
+					ele.push( trkpArr[3] );
+					time.push( trkpArr[4] );
+				}
+				trkptStrPre = trkpArr[5];
 				pointer = trkpArr[0] +1;
-				latlon.push( [ trkpArr[1], trkpArr[2] ] );
-				if (  Number.isNaN(trkpArr[3]) ){ NoEleFlag = 1; }
-				ele.push( trkpArr[3] );
-				time.push( trkpArr[4] );
 			}
 			trkptDat["latlon"] = latlon.slice();
 			trkptDat["ele"] = ele.slice();
@@ -305,12 +308,11 @@ function add_eleDat( routeName ){
 		}
 	}
 }
-  // 読み込みルートリスト表示
+// 読み込みルートリスト表示
 function dsp_routeList(){
 	routTxt = "";
 	for ( let routeName in Routes ){ routTxt += routeName + "<br>"; }
 	document.getElementById("message3").innerHTML = routTxt;
-	
 	return;
 }
 
