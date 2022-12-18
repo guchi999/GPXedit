@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ja" >
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GPXエディタ</title>
+	<style>
+	body {
+	   width: 620px;
+	}
+	.icon1 {
+	width: 6px; height: 6px;
+	border-radius: 50% 50% 50% 50%;
+	border: 4px solid #ff0000;
+	box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.8);
+	background-color: #000000;
+	position: absolute;
+	}
+	.icon2 {
+	width: 10px; height: 10px;
+	border-radius: 50% 50% 50% 50%;
+	background-color: #ff00ff;
+	position: absolute;
+	}
+	.icon3 {
+	width: 10px; height: 10px;
+	border-radius: 50% 50% 50% 50%;
+	background-color: #4682b4;
+	position: absolute;
+	}
+	#menue {
+	  list-style: none;
+	  overflow: hidden;
+	  width: 640px;
+	  padding: 0px 0px 0px 5px;
+	}
+	#menue li {
+	  width: 120px;
+	  text-align: center;
+	  background-color: #000000;
+	  border: 1px solid #ffffff;
+	  float: left;
+	}
+	#menue li a {
+	  text-decoration: none;
+	  color: #fffafa;
+	  font-weight: bold;
+	  display:block;
+	}
+	
+	</style>
+	
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin=""/>
+	<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
+	<script type="text/javascript" src="./module1.js"  defer></script>
+	<script type="text/javascript" src="./module2.js"  defer></script>
+	<script type="text/javascript" src="./module3.js"  defer></script>
+	
+</head>
+<body>
+	<span>【GPXエディタ V2.2】
+	<b><a href="javascript:pupuHelp();">使い方</a></b><br>
+	</span>
+	<b>地図画面にルートファイル(GPX、KML)をドロップするか [ファイル選択]を押して入力してください。</b>
+	<input type="file" multiple id="selfile"><br>
+
+	<div id="mapWin1" style="width:620px; height:350px;"></div>
+	<span>&nbsp;作業モード選択：</span>
+	<b><a href="javascript:pupuHelp();">使い方</a></b>
+	<br>
+
+	<div id="menue">
+		<li id ="make"><a href="javascript:void(0);" onclick="mode_sel('make');">ルート作成</a></li>
+		<li id ="edit"><a href="javascript:void(0);" onclick="mode_sel('edit');">部分編集</a></li>
+		<li id ="divide"><a href="javascript:void(0);" onclick="mode_sel('divide');">分割</a></li>
+		<li id ="remove"><a href="javascript:void(0);" onclick="mode_sel('remove');">部分削除</a></li>
+		<li id ="merge"><a href="javascript:void(0);" onclick="mode_sel('merge');">結合</a></li>
+		<li id ="decimate"><a href="javascript:void(0);" onclick="mode_sel('decimate');">間引き</a></li>
+		<li id ="TmChang"><a href="javascript:void(0);" onclick="mode_sel('TmChang');">時間変更</a></li>
+		<li id ="NaChang"><a href="javascript:void(0);" onclick="mode_sel('NaChang');">名前変更</a></li>
+		<li id ="wptEdit"><a href="javascript:void(0);" onclick="mode_sel('wptEdit');">ウェイポイント</a></li>
+		<li id ="reverse"><a href="javascript:void(0);" onclick="mode_sel('reverse');">逆ルート</a></li>
+		<li id ="EleRepl"><a href="javascript:void(0);" onclick="mode_sel('EleRepl');">標高置換</a></li>
+		<li id ="Pinfo"><a href="javascript:void(0);" onclick="mode_sel('Pinfo');">ポイント情報</a></li>
+		<li id ="save"><a href="javascript:void(0);" onclick="mode_sel('save');">ファイル出力</a></li>
+		<li id ="delete"><a href="javascript:void(0);" onclick="mode_sel('delete');">ルート削除</a></li>
+		<li id ="jump"><a href="javascript:void(0);" onclick="mode_sel('jump');">地図ジャンプ</a></li>
+	</div>
+
+	<font color="crimson"><span id="message1" ></span><br>
+	<span id="message2" ></span></font>
+	<div id="OParea1"></div>
+	<div id="OParea2"></div>
+	<div id="OParea3"></div>
+	<div id="OParea4"></div>
+	<br>
+
+	<div ondblclick="listJump()" >
+	<span><b>[読込み済みルート]</b></span><br>
+	<span id="message3" ></span>
+	</div>
+
+<script>
+
+function mode_sel(modeNew){
+	if ( mode === modeNew ){ return; }
+	if ( mode === "merge" && ActRoute != ""){ change_ActColor( ActRoute ); } // V2.2 yellow line reset
+	document.getElementById(mode).style.background='#000000';
+	document.getElementById(modeNew).style.background='#ff00ff';
+	mode = modeNew;
+	modeChange();
+}
+
+
+// 使い方表示
+function pupuHelp(){
+	let newwin = window.open( './usage.htm', 'GPXEdit 使い方', 'top=50, left=550, width=650, height=600' );
+}
+
+
+</script>
+</body>
+</html>
+
