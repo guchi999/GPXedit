@@ -104,7 +104,11 @@
 
 function mode_sel(modeNew){
 	if ( mode === modeNew ){ return; }
-	if ( mode === "merge" && ActRoute != ""){ change_ActColor( ActRoute ); } // V2.2 yellow line reset
+	if ( ActRoute != "" ){ // V2.2 ActRoute set, yellow line reset
+		if ( mode === "merge" ){ change_ActColor( ActRoute ); } 
+	}else{
+		if ( Object.keys(RouteList).length === 1 ){	ActRoute = Object.keys(RouteList)[0]; }
+	}
 	document.getElementById(mode).style.background='#000000';
 	document.getElementById(modeNew).style.background='#ff00ff';
 	mode = modeNew;
