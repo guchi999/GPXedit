@@ -591,6 +591,7 @@ function trkLine_crkOpe( routeId, trckNumber, NpInfo ){
 				ActRoute = MergAct = routeId;
 			}else if ( Object.keys(ChoseRoute).length === 1 ){
 				if ( routeId === Object.keys(ChoseRoute)[0] ){// 選択解除
+					if (Object.keys(RouteList).length === 1){return;}
 					del_routeLine( routeId ); drw_routelineColo( routeId, "violet" );
 					delete ChoseRoute[ routeId ];
 					ActRoute = MergAct = "";
