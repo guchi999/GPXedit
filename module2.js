@@ -117,7 +117,7 @@ function make_RouteList( txtStr, routeName, mapfit = 0 ){
 	RIcons[routeId] = iconArr.slice();
 	if ( ActRoute != "" ){ // V2.2 前ActRouteの色を紫にする
 		del_routeLine( ActRoute );
-		drw_routelineColo( ActRoute, "violet" );
+		drw_routelineColo( ActRoute, "mediumorchid" );
 	}
 	ActRoute = routeId; // V2.2
 	modeChange();
@@ -592,7 +592,7 @@ function trkLine_crkOpe( routeId, trckNumber, NpInfo ){
 			}else if ( Object.keys(ChoseRoute).length === 1 ){
 				if ( routeId === Object.keys(ChoseRoute)[0] ){// 選択解除
 					if (Object.keys(RouteList).length === 1){return;}
-					del_routeLine( routeId ); drw_routelineColo( routeId, "violet" );
+					del_routeLine( routeId ); drw_routelineColo( routeId, "mediumorchid" );
 					delete ChoseRoute[ routeId ];
 					ActRoute = MergAct = "";
 				}else{ // 選択追加
@@ -602,7 +602,7 @@ function trkLine_crkOpe( routeId, trckNumber, NpInfo ){
 				}
 			}else{ // (ChoseRoute).length === 2
 				if ( Object.keys(ChoseRoute).includes(routeId) ){ // 選択解除				
-					del_routeLine( routeId ); drw_routelineColo( routeId, "violet" );
+					del_routeLine( routeId ); drw_routelineColo( routeId, "mediumorchid" );
 					delete ChoseRoute[ routeId ];
 					if ( Object.keys(ChoseRoute)[0] != MergAct ){ // AcrRoute変更
 						ActRoute = MergAct = Object.keys(ChoseRoute)[0];
@@ -757,7 +757,7 @@ function accu_ele(routeId){
 			PTele = eleArr[ i ];
 		}
 		PosBalo = Math.round( PosBalo * 10 ) / 10; NegBalo = Math.round( Math.abs(NegBalo) * 10 ) / 10; 
-		DatTxt = `累積標高：(上り)<b>${PosBalo}</b>m、(下り)<b>${NegBalo}</b>m`;
+		DatTxt = `累積標高：(上り)<b>${PosBalo}</b>m　(下り)<b>${NegBalo}</b>m`;
 	}
 	return DatTxt;
 }
@@ -767,7 +767,7 @@ function dsp_routeInfo( routeId, trckNumber, NpInfo ){
 	let PT = 0, TrackTxt = "", AddTxt = "";
 	switch (mode){
 		case "divide":
-			if ( Object.keys(DevideMark).length === 0 ){ AddTxt = `<br>(ルートの分割したい点をクリック)`;}	
+			if ( Object.keys(DevideMark).length === 0 ){ AddTxt = `<br>(分割したいルートのポイントをクリック)`;}	
 			WrtMessage1( `編集ルート：<b>${RouteList[routeId][0]}</b>` + AddTxt );
 			document.getElementById("trk1").value = `${RouteList[routeId][0]}-1`;
 			document.getElementById("trk2").value = `${RouteList[routeId][0]}-2`;
@@ -808,8 +808,8 @@ function dsp_routeInfo( routeId, trckNumber, NpInfo ){
 			let trkNN = Track[routeId][trckNumber -1 ], NN1 = "", NN2 = "";
 			( trkNN.indexOf("<name>") != -1 ) ?  NN1 = trkNN.substring( trkNN.indexOf("<name>") + 6, trkNN.indexOf("</name>") ): NN1 = "";
 			( trkNN.indexOf("<number>") != -1 ) ?  NN2 = trkNN.substring( trkNN.indexOf("<number>") + 8, trkNN.indexOf("</number>") ): NN2 = "";
-			WrtMessage1( `ルート名：<b>${RouteList[routeId][0]}</b>、トラック名とnumber：<b>${NN1}</b>、<b>${NN2}</b>、index:<b>${NpInfo[2]}</b>` );
-			WrtMessage2( `緯度経度：<b>N</b>${lat}、<b>E</b>${lon}<br>日付:<b>${PtimeStrD}</b>、${accu_ele(routeId)}` );
+			WrtMessage1( `ルート名：<b>${RouteList[routeId][0]}</b>　トラック名とnumber：<b>${NN1}</b>,<b>${NN2}</b>　index:<b>${NpInfo[2]}</b>` );
+			WrtMessage2( `緯度経度：<b>N</b>${lat}　<b>E</b>${lon}<br>日付:<b>${PtimeStrD}</b>　${accu_ele(routeId)}` );
 			break;
 		case "edit":
 			if ( typeof trckNumber != "undefined" ){
@@ -829,7 +829,7 @@ function dsp_routeInfo( routeId, trckNumber, NpInfo ){
 					WrtMessage1( `選択ルート1：<b>${RouteList[CR[0]][0]}</b>` );
 					document.getElementById("trk1").value = RouteList[CR[0]][0];
 				}else{
-					WrtMessage1( `選択ルート1：<b>${RouteList[CR[0]][0]}</b>、選択ルート2：<b>${RouteList[CR[1]][0]}</b>` );
+					WrtMessage1( `選択ルート1：<b>${RouteList[CR[0]][0]}</b><br>選択ルート2：<b>${RouteList[CR[1]][0]}</b>` );
 					document.getElementById("trk1").value = RouteList[CR[0]][0] + "-" + RouteList[CR[1]][0];
 				}
 			}
