@@ -151,7 +151,7 @@ function change_ActColor( routeId ){
 	if ( Object.keys( RouteList ).length > 1 ){
 		for (let RTI of Object.keys( RouteList )){
 			if ( RTI != ActRoute ){
-				del_routeLine( RTI ); drw_routelineColo( RTI, "violet" );
+				del_routeLine( RTI ); drw_routelineColo( RTI, "mediumorchid" );
 			}
 		}
 	}
@@ -198,7 +198,7 @@ function ActLinClkRt(){
 	if (mode === "wptEdit"){//  ActRoute解除【wptEdit】
 		for ( let M in LmarkerList ){ mymap.removeLayer( LmarkerList[M] ); }
 		LmarkerList = {}; LmarkerIndex = {};
-		del_routeLine( ActRoute ); drw_routelineColo( ActRoute, "violet" );
+		del_routeLine( ActRoute ); drw_routelineColo( ActRoute, "mediumorchid" );
 		ActRoute = "";
 		modeChange();
 	}
