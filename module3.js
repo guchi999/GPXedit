@@ -397,25 +397,26 @@ function change_RTname(){
 	}
 	for ( let i = 0; i < RouteList[ routeId ][1]; i++ ){
 		let Name, Number,  repTxt, trkStr = Track[ routeId ][ i ];;
-		if ( trakNameArr[ i ] != "<name><number>" ){
-			Name = trakNameArr[ i ].split( "<number>" )[0];
-			Number = "<number>" + trakNameArr[ i ].split( "<number>" )[1];
-			if ( trkStr.indexOf( "<name>" ) != -1 ){
-				repTxt = trkStr.substring( trkStr.indexOf( "<name>" ), trkStr.indexOf( "</name>" ) );
-				Track[ routeId ][ i ] = Track[ routeId ][ i ].replace ( repTxt, Name );
-			}
-			if ( trkStr.indexOf( "<number>" ) != -1 ){
-				repTxt = trkStr.substring( trkStr.indexOf( "<number>" ), trkStr.indexOf( "</number>" ) );
-				Track[ routeId ][ i ] = Track[ routeId ][ i ].replace ( repTxt, Number );
-			}
-			if (  ( trkStr.indexOf( "<name>" ) === -1 ) && ( trkStr.indexOf( "<number>" ) === -1 ) ){
-				Track[ routeId ][ i ] = Name + "</name>" + Number + "</number>" + Track[ routeId ][ i ];
-			}
+		Name = trakNameArr[ i ].split( "<number>" )[0];
+		Number = "<number>" + trakNameArr[ i ].split( "<number>" )[1];
+		if ( trkStr.indexOf( "<name>" ) != -1 ){
+			repTxt = trkStr.substring( trkStr.indexOf( "<name>" ), trkStr.indexOf( "</name>" ) );
+			Track[ routeId ][ i ] = Track[ routeId ][ i ].replace ( repTxt, Name );
+		}
+		if ( trkStr.indexOf( "<number>" ) != -1 ){
+			repTxt = trkStr.substring( trkStr.indexOf( "<number>" ), trkStr.indexOf( "</number>" ) );
+			Track[ routeId ][ i ] = Track[ routeId ][ i ].replace ( repTxt, Number );
+		}
+		if (  ( trkStr.indexOf( "<name>" ) === -1 ) && ( trkStr.indexOf( "<number>" ) === -1 ) ){
+			Track[ routeId ][ i ] = Name + "</name>" + Number + "</number>" + Track[ routeId ][ i ];
 		}
 	}
-	RouteList[ routeId ][0] = NewRouteName;
+	RouteList[ routeId ][0] = NewRouteName;	
 	dsp_routeInfo( routeId );
 	modeChange();
+	let Msg = document.getElementById("message1").innerHTML;
+	WrtMessage1 ("変更完了");
+	setTimeout(WrtMessage1, 500, Msg);
 }
 
 
@@ -904,9 +905,9 @@ function wpt_edit(){
 	LmarkerIndex[ WptMark ][4] = GetDoc( "trk2" );
 	LmarkerIndex[ WptMark ][5] = GetDoc( "trk3" );
 	replace_wptTxt();
-	let Msg = document.getElementById("message1").innerHTML
+	let Msg = document.getElementById("message1").innerHTML;
 	WrtMessage1 ("変更完了");
-	setTimeout(WrtMessage1, 1000, Msg)
+	setTimeout(WrtMessage1, 1000, Msg);
 }
 
 
