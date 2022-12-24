@@ -415,8 +415,7 @@ function change_RTname(){
 	dsp_routeInfo( routeId );
 	modeChange();
 	let Msg = document.getElementById("message1").innerHTML;
-	WrtMessage1 ("変更完了");
-	setTimeout(WrtMessage1, 500, Msg);
+	WrtMessage1 ("変更完了"); setTimeout(WrtMessage1, 500, Msg);
 }
 
 
@@ -901,13 +900,11 @@ function make_wptArr( routeId ){
 
 // "wptEdit" 編集確定
 function wpt_edit(){
+	if ( WptMark === "" ){ return; }
 	LmarkerIndex[ WptMark ][3] = GetDoc( "trk1" );
 	LmarkerIndex[ WptMark ][4] = GetDoc( "trk2" );
 	LmarkerIndex[ WptMark ][5] = GetDoc( "trk3" );
 	replace_wptTxt();
 	let Msg = document.getElementById("message1").innerHTML;
-	WrtMessage1 ("変更完了");
-	setTimeout(WrtMessage1, 1000, Msg);
+	WrtMessage1 ("変更完了"); setTimeout(WrtMessage1, 500, Msg);
 }
-
-
