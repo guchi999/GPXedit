@@ -611,7 +611,8 @@ function trkLine_crkOpe( routeId, trckNumber, NpInfo ){
 			}
 			break;
 		case "edit":
-			if ( Object.keys(EditRtTr).length != 0 && routeId != ActRoute ){ return; }
+		//	if ( Object.keys(EditRtTr).length != 0 && routeId != ActRoute ){ return; }
+			if ( Object.keys(EditRtTr).length != 0 ){ return; }
 			change_ActColor( routeId );
 			drw_MarkerLine( routeId, trckNumber, NpInfo );
 			break;
@@ -757,9 +758,9 @@ function accu_ele(routeId){
 			PTele = eleArr[ i ];
 		}
 		PosBalo = Math.round( PosBalo * 10 ) / 10; NegBalo = Math.round( Math.abs(NegBalo) * 10 ) / 10; 
-		DatTxt = `累積標高：(上り)<b>${PosBalo}</b>m　(下り)<b>${NegBalo}</b>m`;
+		return `累積標高:(↑)<b>${PosBalo}</b>m(↓)<b>${NegBalo}</b>m`;
 	}
-	return DatTxt;
+//	return DatTxt;
 }
 
 // ---------- 選択ルート編集画面への情報表示 ----------
@@ -808,8 +809,8 @@ function dsp_routeInfo( routeId, trckNumber, NpInfo ){
 			let trkNN = Track[routeId][trckNumber -1 ], NN1 = "", NN2 = "";
 			( trkNN.indexOf("<name>") != -1 ) ?  NN1 = trkNN.substring( trkNN.indexOf("<name>") + 6, trkNN.indexOf("</name>") ): NN1 = "";
 			( trkNN.indexOf("<number>") != -1 ) ?  NN2 = trkNN.substring( trkNN.indexOf("<number>") + 8, trkNN.indexOf("</number>") ): NN2 = "";
-			WrtMessage1( `ルート名：<b>${RouteList[routeId][0]}</b>　トラック名とnumber：<b>${NN1}</b>,<b>${NN2}</b>　index:<b>${NpInfo[2]}</b>` );
-			WrtMessage2( `緯度経度：<b>N</b>${lat}　<b>E</b>${lon}<br>日付:<b>${PtimeStrD}</b>　${accu_ele(routeId)}` );
+			WrtMessage1( `ルート名: <b>${RouteList[routeId][0]}</b>　トラック名,number: <b>${NN1}</b>,<b>${NN2}</b>` );
+			WrtMessage2( `<b>${PtimeStrD}</b>　${accu_ele(routeId)}<br><font color="black">index: <b>${NpInfo[2]}</b>　緯度経度: <b>${lat}</b>,<b>${lon}</b></font>` );
 			break;
 		case "edit":
 			if ( typeof trckNumber != "undefined" ){
