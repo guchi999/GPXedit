@@ -767,7 +767,7 @@ function dsp_routeInfo( routeId, trckNumber, NpInfo ){
 	let PT = 0, TrackTxt = "", AddTxt = "";
 	switch (mode){
 		case "divide":
-			if ( Object.keys(DevideMark).length === 0 ){ AddTxt = `<br>(分割したいルートのポイントをクリック)`;}	
+			if ( Object.keys(DevideMark).length === 0 ){ AddTxt = `<br>(ルートの分割したいポイントをクリック)`;}	
 			WrtMessage1( `編集ルート：<b>${RouteList[routeId][0]}</b>` + AddTxt );
 			document.getElementById("trk1").value = `${RouteList[routeId][0]}-1`;
 			document.getElementById("trk2").value = `${RouteList[routeId][0]}-2`;
@@ -778,7 +778,7 @@ function dsp_routeInfo( routeId, trckNumber, NpInfo ){
 			break;
 		case "Pinfo":  // V2.1 時間/標高は入力欄に表示、日付のみルート情報に表示するよう変更
 			if ( typeof trckNumber === "undefined" ){ 
-				WrtMessage1( `(情報表示したいルート上のポイントをクリック)` );
+				WrtMessage1( `(ルートの情報表示したいポイントをクリック)` );
 				return; 
 			}
 			let lat = NpInfo[0][0], lon = NpInfo[0][1];
@@ -809,7 +809,7 @@ function dsp_routeInfo( routeId, trckNumber, NpInfo ){
 			( trkNN.indexOf("<name>") != -1 ) ?  NN1 = trkNN.substring( trkNN.indexOf("<name>") + 6, trkNN.indexOf("</name>") ): NN1 = "";
 			( trkNN.indexOf("<number>") != -1 ) ?  NN2 = trkNN.substring( trkNN.indexOf("<number>") + 8, trkNN.indexOf("</number>") ): NN2 = "";
 			WrtMessage1( `ルート名: <b>${RouteList[routeId][0]}</b>　トラック名,number: <b>${NN1}</b>,<b>${NN2}</b>` );
-			WrtMessage2( `<b>${PtimeStrD}</b>　${accu_ele(routeId)}<br><font color="black">index: [<b>${NpInfo[2]}</b>]　緯度経度: <b>${lat}</b>,<b>${lon}</b></font>` );
+			WrtMessage2( `日付: <b>${PtimeStrD}</b>　${accu_ele(routeId)}<br><font color="black">index: [<b>${NpInfo[2]}</b>]　緯度経度: <b>${lat}</b>,<b>${lon}</b></font>` );
 			break;
 		case "edit":
 			if ( typeof trckNumber != "undefined" ){
