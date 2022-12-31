@@ -611,7 +611,6 @@ function trkLine_crkOpe( routeId, trckNumber, NpInfo ){
 			}
 			break;
 		case "edit":
-		//	if ( Object.keys(EditRtTr).length != 0 && routeId != ActRoute ){ return; }
 			if ( Object.keys(EditRtTr).length != 0 ){ return; }
 			change_ActColor( routeId );
 			drw_MarkerLine( routeId, trckNumber, NpInfo );
@@ -742,13 +741,17 @@ function replace_wptTxt(){
 	WrtMessage1( `選択ルート：${RouteList[ActRoute][0]}、 ウェイポイント数：${RouteList[ActRoute][2]}` );
 }
 
-// 	"Pinfo" 用 累積標高値の表示テキスト V2.2
+// 	"Pinfo" 用 総距離,累積標高値の表示テキスト V2.2
 function accu_ele(routeId){
 	let DatTxt ="";
 	if ( trksegEleChk( routeId )[0] != 1 ){
 		let trksegTxt = "";
 		for ( let i = 0; i < TrksegTxt[ routeId ].length; i++ ){
 			trksegTxt += TrksegTxt[ routeId ][ i ];
+		}
+		let laloArr = make_LatlonFmTrkTxt( trksegTxt ), TotalDist = 0;
+		for ( let i = 1; i < laloArr.length-1; i++ ){
+			TotalDist += hubeny( laloArr[i][0], laloArr[i][1], laloArr[1+1][0], laloArr[i+1][1] );
 		}
 		let eleArr = make_EleFmTrkTxt( trksegTxt );
 		let PosBalo = 0, NegBalo = 0, PTele = eleArr[0];
@@ -758,9 +761,8 @@ function accu_ele(routeId){
 			PTele = eleArr[ i ];
 		}
 		PosBalo = Math.round( PosBalo * 10 ) / 10; NegBalo = Math.round( Math.abs(NegBalo) * 10 ) / 10; 
-		return `累積標高:(↑)<b>${PosBalo}</b>m(↓)<b>${NegBalo}</b>m`;
+		return `総距離:<b>${Math.round( TotalDist / 10 ) /100}</b>Km　累積標高:(＋)<b>${PosBalo}</b>m,(ー)<b>${NegBalo}</b>m`;
 	}
-//	return DatTxt;
 }
 
 // ---------- 選択ルート編集画面への情報表示 ----------
