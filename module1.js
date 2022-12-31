@@ -516,5 +516,3 @@ function addSaveLink( location ){
 	compo.appendChild( SPN );
 	place.appendChild( compo );
 }
-
-

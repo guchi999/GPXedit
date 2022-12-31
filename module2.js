@@ -741,27 +741,24 @@ function replace_wptTxt(){
 	WrtMessage1( `選択ルート：${RouteList[ActRoute][0]}、 ウェイポイント数：${RouteList[ActRoute][2]}` );
 }
 
-// 	"Pinfo" 用 総距離,累積標高値の表示テキスト V2.2
+// 	"Pinfo" 用 総距離,累積標高値の表示作成 V2.2
 function accu_ele(routeId){
-	let DatTxt ="";
 	if ( trksegEleChk( routeId )[0] != 1 ){
-		let trksegTxt = "";
-		for ( let i = 0; i < TrksegTxt[ routeId ].length; i++ ){
-			trksegTxt += TrksegTxt[ routeId ][ i ];
+		let trkTxt = "";
+		for ( let i = 0; i < TrksegTxt[ routeId ].length; i++ ){ trkTxt += TrksegTxt[ routeId ][ i ]; }
+		let laloArr = make_LatlonFmTrkTxt( trkTxt ), TotalDist = 0;
+		for ( let i = 0; i < laloArr.length-1; i++ ){
+			TotalDist += hubeny( laloArr[i][0], laloArr[i][1], laloArr[i+1][0], laloArr[i+1][1] );
 		}
-		let laloArr = make_LatlonFmTrkTxt( trksegTxt ), TotalDist = 0;
-		for ( let i = 1; i < laloArr.length-1; i++ ){
-			TotalDist += hubeny( laloArr[i][0], laloArr[i][1], laloArr[1+1][0], laloArr[i+1][1] );
-		}
-		let eleArr = make_EleFmTrkTxt( trksegTxt );
-		let PosBalo = 0, NegBalo = 0, PTele = eleArr[0];
+		TotalDist = Math.round( TotalDist / 10 ) / 100;
+		let eleArr = make_EleFmTrkTxt( trkTxt ), PosBalo = 0, NegBalo = 0, PTele = eleArr[0];
 		for ( let i = 1; i < eleArr.length; i++ ){
 			let Balo = eleArr[ i ] - PTele;
 			( Balo > 0 ) ? 	PosBalo += Balo: NegBalo += Balo;
 			PTele = eleArr[ i ];
 		}
 		PosBalo = Math.round( PosBalo * 10 ) / 10; NegBalo = Math.round( Math.abs(NegBalo) * 10 ) / 10; 
-		return `総距離:<b>${Math.round( TotalDist / 10 ) /100}</b>Km　累積標高:(＋)<b>${PosBalo}</b>m,(ー)<b>${NegBalo}</b>m`;
+		return `総距離:<b>${TotalDist}</b>Km　累積標高:<b>＋${PosBalo}</b>m,<b>－${NegBalo}</b>m`;
 	}
 }
 
@@ -781,7 +778,7 @@ function dsp_routeInfo( routeId, trckNumber, NpInfo ){
 			break;
 		case "Pinfo":  // V2.1 時間/標高は入力欄に表示、日付のみルート情報に表示するよう変更
 			if ( typeof trckNumber === "undefined" ){ 
-				WrtMessage1( `(ルート上の情報表示したいポイントをクリック)` );
+				WrtMessage1( `(情報表示したいルート上のポイントをクリック)` );
 				return; 
 			}
 			let lat = NpInfo[0][0], lon = NpInfo[0][1];
@@ -812,7 +809,7 @@ function dsp_routeInfo( routeId, trckNumber, NpInfo ){
 			( trkNN.indexOf("<name>") != -1 ) ?  NN1 = trkNN.substring( trkNN.indexOf("<name>") + 6, trkNN.indexOf("</name>") ): NN1 = "";
 			( trkNN.indexOf("<number>") != -1 ) ?  NN2 = trkNN.substring( trkNN.indexOf("<number>") + 8, trkNN.indexOf("</number>") ): NN2 = "";
 			WrtMessage1( `ルート名: <b>${RouteList[routeId][0]}</b>　トラック名,number: <b>${NN1}</b>,<b>${NN2}</b>` );
-			WrtMessage2( `<b>${PtimeStrD}</b>　${accu_ele(routeId)}<br><font color="black">index: <b>${NpInfo[2]}</b>　緯度経度: <b>${lat}</b>,<b>${lon}</b></font>` );
+			WrtMessage2( `<b>${PtimeStrD}</b>　${accu_ele(routeId)}<br><font color="black">index: [<b>${NpInfo[2]}</b>]　緯度経度: <b>${lat}</b>,<b>${lon}</b></font>` );
 			break;
 		case "edit":
 			if ( typeof trckNumber != "undefined" ){
@@ -905,4 +902,3 @@ function dsp_routeInfo( routeId, trckNumber, NpInfo ){
 		break;
 	}
 }
-
