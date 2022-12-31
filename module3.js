@@ -705,7 +705,6 @@ function change_time(){
 	}else{
 		if ( TcDate == ""  || TcStartTime == "" ){ alert("正しい時間をセットしてください"); return; }
 	}
-	//let routeId = Object.keys(ChoseRoute)[0];
 	let routeId = ActRoute; //V2.2
 	if (Bttn1Value() === "0" ){ // 時間変更
 		let EE = trksegEleChk( routeId );
