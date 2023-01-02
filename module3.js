@@ -784,7 +784,7 @@ function fix_edit(){
 		let eleTxt = "<ele>" + get_Ele( latlng[0], latlng[1] ) + "</ele>"; 
 		( trkptStr.indexOf("<ele>") != -1 ) ? 
 			trkptStrNew += trkptStr.split("<ele>")[0] + eleTxt + trkptStr.split("</ele>")[1]:
-			trkptStrNew += trkptStr.substrin( 0, trkptStr.indexOf(">") + 1 ) + eleTxt + trkptStr.substrin( trkptStr.indexOf(">") + 1 );
+			trkptStrNew += trkptStr.substring( 0, trkptStr.indexOf(">") + 1 ) + eleTxt + trkptStr.substring( trkptStr.indexOf(">") + 1 );
 		return trkptStrNew;
 	}
 	let routeId = Object.keys(EditRtTr)[0];
