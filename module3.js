@@ -793,16 +793,18 @@ function fix_edit(){
 	let sep = [];
 	sep[0] = trkTxt.substring( trkTxt.indexOf(">") + 1, trkTxt.indexOf("<", trkTxt.indexOf(">") ) );
 	sep[1] = trkTxt.substring( trkTxt.indexOf("</trkpt>") + 8, trkTxt.indexOf("<trkpt ",  trkTxt.indexOf("</trkpt>")) );
-	let tmpTxt = spl_trkseg( trkTxt, MBindex ); 
-	let preTxt = tmpTxt[0], midTxt = "", pstTxt = ""; // trkTxtを pre(非変更), mid(変更), pst(非変更) の３つに分ける
+	let tmpTxt = spl_trkseg( trkTxt, MBindex );
+	// trkTxtを pre(非変更), mid(変更), pst(非変更) の３つに分ける
+	let preTxt = tmpTxt[0], midTxt = "", pstTxt = "";
 	if ( strCount( tmpTxt[1], "</trkpt>") > 600 ){
 		tmpTxt = spl_trkseg( tmpTxt[1], 601 ); 
 		midTxt = tmpTxt[0]; pstTxt = tmpTxt[1];
 	}else{
 		midTxt = tmpTxt[1];
 	}
-	let PT = 0, mn = 0, chgTxt = "";
+	let PT = 0, chgTxt = "";
 	let wptArr = make_wptArr( routeId );
+ 	// midTxtをLmarkerIndexに従って変更(trkptの追加/削除/移動) → chgTxt
 	for ( let i = 0; i <  Object.keys(LmarkerIndex).length; i++ ){
 		let ptOrg = get_trkptDat( midTxt, PT );
 		let mrkInf = LmarkerIndex[ String( i + 1 ) ];
@@ -832,7 +834,8 @@ function fix_edit(){
 	}
 	PT = 0;
 	let TcList = [], flg = 0, buff = "";
-	while( PT != -1 ){ // 時間設定必要なtrkptのリスト作成
+	// 時間設定必要なtrkptを含むのブロックのリスト作成(TcList)
+	while( PT != -1 ){ 
 		let chkLin = get_trkptDat( chgTxt, PT );
 		 PT = chkLin[0]; 
 		if ( PT != -1 ){
@@ -840,29 +843,28 @@ function fix_edit(){
 				buff += chkLin[5];
 				flg = 1;
 			}else{
-				if ( flg != 0 ){ buff += chkLin[5]; TcList.push( buff ); }
+				if ( flg != 0 ){ buff += chkLin[5];	TcList.push( buff ); }
 				buff = chkLin[5];
 				flg = 0;
 			}
 			PT++;
 		}
 	}
+	// TcListに従って時間を設定したブロックでchgTxtの当該するブロックを置換
 	if ( trksegTimeChk( routeId )[0] != 1 ){ // 時間データ無しは時間変更をスキップ V2.02
-	 for ( let i = 0; i < TcList.length; i++ ){ // 時間変更
-	 	let startTime = TcList[ i ].substring( TcList[ i ].indexOf("<time>") + 6, TcList[ i ].indexOf("</time>") );
-	 	let endTime = TcList[ i ].substring( TcList[ i ].lastIndexOf("<time>") + 6, TcList[ i ].lastIndexOf("</time>") );
-	 
-if ( startTime.indexOf(".") != -1 ){ startTime = startTime.substring( 0, startTime.indexOf(".") ) + "Z"; }
-if ( endTime.indexOf(".") != -1 ){ endTime = endTime.substring( 0, endTime.indexOf(".") ) + "Z"; }
-		 
-		let timeArr = make_timeArr( make_LatlonFmTrkTxt( TcList[ i ] ), make_EleFmTrkTxt( TcList[ i ] ), startTime, endTime );
-	 	let pstChg = SegTimeTxt_change( TcList[ i ], timeArr );
-	 	let topLine = pstChg.substring( 0, pstChg.indexOf( "<trkpt", 5 ) );
-	 	let endLine =pstChg.substring( pstChg.lastIndexOf( "<trkpt" ) );
-	 	let repLine = pstChg.substring( pstChg.indexOf( "<trkpt", 5 ), pstChg.lastIndexOf( "<trkpt" ) );
-		pstChg = pstChg.substring( 0, pstChg.indexOf( endLine ) );
-		chgTxt = chgTxt.substring( 0, chgTxt.indexOf( topLine ) ) + pstChg + chgTxt.substring( chgTxt.indexOf( endLine ) );
-	 }
+		for ( let i = 0; i < TcList.length; i++ ){ // 時間変更 V2.2
+	 		let startTime = TcList[ i ].substring( TcList[ i ].indexOf("<time>") + 6, TcList[ i ].indexOf("</time>") );
+		 	let endTime = TcList[ i ].substring( TcList[ i ].lastIndexOf("<time>") + 6, TcList[ i ].lastIndexOf("</time>") );
+			let timeArr = make_timeArr( make_LatlonFmTrkTxt( TcList[ i ] ), make_EleFmTrkTxt( TcList[ i ] ), startTime, endTime );
+			let pstChg = SegTimeTxt_change( TcList[ i ], timeArr ); // ブロックの時間設定
+			let OrgTopLine =  TcList[ i ].substring( 0, TcList[ i ].indexOf( "<trkpt", 7 ) );
+			let OrgEndLine =  TcList[ i ].substring( TcList[ i ].lastIndexOf("<trkpt") );
+			pstChg = pstChg.substring( pstChg.indexOf( "<trkpt", 7 ) );
+			pstChg = pstChg.substring( 0, pstChg.lastIndexOf( "<trkpt" ) );
+			pstChg = OrgTopLine + pstChg + OrgEndLine;
+			let repTxt =  TcList[ i ];
+			chgTxt.replace( new RegExp(repTxt,"g"), pstChg);
+		}
 	}
 	TrksegTxt[ routeId ][ EditRtTr[ routeId ][0] -1 ] = preTxt + chgTxt + pstTxt;
 	let wptTxt = ""; // ヘッダのwptを書き換え
@@ -878,105 +880,6 @@ if ( endTime.indexOf(".") != -1 ){ endTime = endTime.substring( 0, endTime.index
 	modeChange();
 }
 
-function fix_editORG(){
-	if ( Object.keys(EditRtTr).length === 0){ return; }
-	const mov_mark = ( trkptStr, latlng ) =>{ // 移動したマーカーのtrkptTxt生成関数
-		let tmpTxt =trkptStr.split( 'lat="'), trkptStrNew = "";
-		trkptStr = tmpTxt[0] + 'lat="' + latlng[0] + tmpTxt[1].substring( tmpTxt[1].indexOf( '"' ) );
-		tmpTxt = trkptStr.split( 'lon="');
-		trkptStr = tmpTxt[0] + 'lon="' + latlng[1] + tmpTxt[1].substring( tmpTxt[1].indexOf( '"' ) );
-		let eleTxt = "<ele>" + get_Ele( latlng[0], latlng[1] ) + "</ele>"; 
-		( trkptStr.indexOf("<ele>") != -1 ) ? 
-			trkptStrNew += trkptStr.split("<ele>")[0] + eleTxt + trkptStr.split("</ele>")[1]:
-			trkptStrNew += trkptStr.substring( 0, trkptStr.indexOf(">") + 1 ) + eleTxt + trkptStr.substring( trkptStr.indexOf(">") + 1 );
-		return trkptStrNew;
-	}
-	let routeId = Object.keys(EditRtTr)[0];
-	let trkTxt = TrksegTxt[ routeId ][ EditRtTr[ routeId ][0] -1 ];
-	let MBindex = EditRtTr[ routeId ][1];
-	let sep = [];
-	sep[0] = trkTxt.substring( trkTxt.indexOf(">") + 1, trkTxt.indexOf("<", trkTxt.indexOf(">") ) );
-	sep[1] = trkTxt.substring( trkTxt.indexOf("</trkpt>") + 8, trkTxt.indexOf("<trkpt ",  trkTxt.indexOf("</trkpt>")) );
-	let tmpTxt = spl_trkseg( trkTxt, MBindex ); 
-	let preTxt = tmpTxt[0], midTxt = "", pstTxt = ""; // trkTxtを pre(非変更), mid(変更), pst(非変更) の３つに分ける
-	if ( strCount( tmpTxt[1], "</trkpt>") > 600 ){
-		tmpTxt = spl_trkseg( tmpTxt[1], 601 ); 
-		midTxt = tmpTxt[0]; pstTxt = tmpTxt[1];
-	}else{
-		midTxt = tmpTxt[1];
-	}
-	let PT = 0, mn = 0, chgTxt = "";
-	let wptArr = make_wptArr( routeId );
-	for ( let i = 0; i <  Object.keys(LmarkerIndex).length; i++ ){
-		let ptOrg = get_trkptDat( midTxt, PT );
-		let mrkInf = LmarkerIndex[ String( i + 1 ) ];
-		PT = ptOrg[0]
-		if ( mrkInf[2] === 3 ){ // 削除trkpt
-			for ( let j = 0; j < wptArr.length; j++ ){ // 削除trkptがwptArrにあれば削除
-				if ( ptOrg[1] +"-"+ ptOrg[2] === wptArr[ j ][0] +"-"+  wptArr[ j ][1] ){
-					wptArr.splice( j, 1 ); break;
-				}
-			}
-			PT++;
-		}else if ( mrkInf[2] === 2 ){ // 追加trkpt
-			chgTxt += `<trkpt lat="${ mrkInf[1][0] }" lon="${ mrkInf[1][1] }">${sep[0]}<ele>${ get_Ele( mrkInf[1][0], mrkInf[1][1] ) }</ele>${sep[0]}<time></time>${sep[0]}</trkpt>${sep[1]}`;
-		}else if ( mrkInf[2] === 1 ){ // 移動trkpt
-			for ( let j = 0; j < wptArr.length; j++ ){ // 移動trkptがwptArrにあればlat, lonを変更
-				if ( ptOrg[1] +"-"+ ptOrg[2] === wptArr[ j ][0] +"-"+  wptArr[ j ][1] ){
-					wptArr[ j ][0] = mrkInf[1][0]; wptArr[ j ][1] =mrkInf[1][1]; break;
-				}
-			}
-			ptOrg[5] = mov_mark( ptOrg[5], mrkInf[1] ); 
-			chgTxt += ptOrg[5];
-			PT++;
-		}else{
-			chgTxt += ptOrg[5];
-			PT++;
-		}
-	}
-	PT = 0;
-	let TcList = [], flg = 0, buff = "";
-	while( PT != -1 ){ // 時間設定必要なtrkptのリスト作成
-		let chkLin = get_trkptDat( chgTxt, PT );
-		 PT = chkLin[0]; 
-		if ( PT != -1 ){
-			if ( chkLin[5].indexOf( "<time></time>" ) != -1 ){
-				buff += chkLin[5];
-				flg = 1;
-			}else{
-				if ( flg != 0 ){ buff += chkLin[5]; TcList.push( buff ); }
-				buff = chkLin[5];
-				flg = 0;
-			}
-			PT++;
-		}
-	}
-	if ( trksegTimeChk( routeId )[0] != 1 ){ // 時間データ無しは時間変更をスキップ V2.02
-	 for ( let i = 0; i < TcList.length; i++ ){ // 時間変更
-	 	let startTime = TcList[ i ].substring( TcList[ i ].indexOf("<time>") + 6, TcList[ i ].indexOf("</time>") );
-	 	let endTime = TcList[ i ].substring( TcList[ i ].lastIndexOf("<time>") + 6, TcList[ i ].lastIndexOf("</time>") );
-		let timeArr = make_timeArr( make_LatlonFmTrkTxt( TcList[ i ] ), make_EleFmTrkTxt( TcList[ i ] ), startTime, endTime );
-	 	let pstChg = SegTimeTxt_change( TcList[ i ], timeArr );
-	 	let topLine = pstChg.substring( 0, pstChg.indexOf( "<trkpt", 5 ) );
-	 	let endLine =pstChg.substring( pstChg.lastIndexOf( "<trkpt" ) );
-	 	let repLine = pstChg.substring( pstChg.indexOf( "<trkpt", 5 ), pstChg.lastIndexOf( "<trkpt" ) );
-		pstChg = pstChg.substring( 0, pstChg.indexOf( endLine ) );
-		chgTxt = chgTxt.substring( 0, chgTxt.indexOf( topLine ) ) + pstChg + chgTxt.substring( chgTxt.indexOf( endLine ) );
-	 }
-	}
-	TrksegTxt[ routeId ][ EditRtTr[ routeId ][0] -1 ] = preTxt + chgTxt + pstTxt;
-	let wptTxt = ""; // ヘッダのwptを書き換え
-	for ( let i = 0; i < wptArr.length; i++){
-		wptTxt += `<wpt lat="${wptArr[ i ][0]}" lon="${wptArr[ i ][1]}">\n<name>${wptArr[ i ][2]}</name>\n<cmt>${wptArr[ i ][3]}</cmt>\n<desc>${wptArr[ i ][4]}</desc>\n</wpt>\n`;
-	}
-	Header[ routeId ][1] = wptTxt;
-	let routeTxt = make_GPXtxt(routeId);
-	let routeName = RouteList[ routeId ][0];
-	delete_route( routeId );
-	make_RouteList( routeTxt, routeName, 1 );
-	tmpTxt = []; preTxt = midTxt = pstTxt = chgTxt = routeTxt = "";
-	modeChange();
-}
 
 // wpt配列作成
 function make_wptArr( routeId ){
