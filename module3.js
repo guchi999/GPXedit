@@ -834,10 +834,10 @@ function fix_edit(){
 	}
 	PT = 0;
 	let TcList = [], flg = 0, buff = "";
-	// 時間設定必要なtrkptを含むのブロックのリスト作成(TcList)
+	// 時間設定必要なtrkptを含むの変更部分のリスト作成(TcList)
 	while( PT != -1 ){ 
 		let chkLin = get_trkptDat( chgTxt, PT );
-		 PT = chkLin[0]; 
+		PT = chkLin[0]; 
 		if ( PT != -1 ){
 			if ( chkLin[5].indexOf( "<time></time>" ) != -1 ){
 				buff += chkLin[5];
@@ -850,27 +850,18 @@ function fix_edit(){
 			PT++;
 		}
 	}
-	// TcListに従って時間を設定したブロックでchgTxtの当該するブロックを置換
+	// TcListに従って時間を設定した変更部分でchgTxtの当該する部分を置換
 	if ( trksegTimeChk( routeId )[0] != 1 ){ // 時間データ無しは時間変更をスキップ V2.02
 		for ( let i = 0; i < TcList.length; i++ ){ // 時間変更 V2.2
 	 		let startTime = TcList[ i ].substring( TcList[ i ].indexOf("<time>") + 6, TcList[ i ].indexOf("</time>") );
 		 	let endTime = TcList[ i ].substring( TcList[ i ].lastIndexOf("<time>") + 6, TcList[ i ].lastIndexOf("</time>") );
 			let timeArr = make_timeArr( make_LatlonFmTrkTxt( TcList[ i ] ), make_EleFmTrkTxt( TcList[ i ] ), startTime, endTime );
-			let pstChg = SegTimeTxt_change( TcList[ i ], timeArr ); // ブロックの時間設定
+			let pstChg = SegTimeTxt_change( TcList[ i ], timeArr ); // 変更部分の時間設定
 			let OrgTopLine =  TcList[ i ].substring( 0, TcList[ i ].indexOf( "<trkpt", 7 ) );
 			let OrgEndLine =  TcList[ i ].substring( TcList[ i ].lastIndexOf("<trkpt") );
-			
 			let str1 = chgTxt.split(OrgTopLine)[0] + OrgTopLine;
 			let str2 = pstChg.substring( pstChg.indexOf( "<trkpt", 7 ), pstChg.lastIndexOf( "<trkpt" ) );
 			let str3 = OrgEndLine + chgTxt.split(OrgEndLine)[1];
-/*		
-			console.log(" chgTxt = \n" + chgTxt);
-			console.log(" TcList = \n" + TcList[ i ]);
-			console.log(" pstChg = \n" + pstChg);
-			console.log("str1 = \n" + str1);
-			console.log("str2 = \n" + str2);
-			console.log("str3 = \n" + str3);
-*/
 			chgTxt = str1 + str2 + str3;
 		}
 	}
