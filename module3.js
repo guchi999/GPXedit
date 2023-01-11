@@ -859,11 +859,19 @@ function fix_edit(){
 			let pstChg = SegTimeTxt_change( TcList[ i ], timeArr ); // ブロックの時間設定
 			let OrgTopLine =  TcList[ i ].substring( 0, TcList[ i ].indexOf( "<trkpt", 7 ) );
 			let OrgEndLine =  TcList[ i ].substring( TcList[ i ].lastIndexOf("<trkpt") );
-			pstChg = pstChg.substring( pstChg.indexOf( "<trkpt", 7 ) );
-			pstChg = pstChg.substring( 0, pstChg.lastIndexOf( "<trkpt" ) );
-			pstChg = OrgTopLine + pstChg + OrgEndLine;
-			let repTxt =  TcList[ i ];
-			chgTxt.replace( new RegExp(repTxt,"g"), pstChg);
+			
+			let str1 = chgTxt.split(OrgTopLine)[0] + OrgTopLine;
+			let str2 = pstChg.substring( pstChg.indexOf( "<trkpt", 7 ), pstChg.lastIndexOf( "<trkpt" ) );
+			let str3 = OrgEndLine + chgTxt.split(OrgEndLine)[1];
+/*		
+			console.log(" chgTxt = \n" + chgTxt);
+			console.log(" TcList = \n" + TcList[ i ]);
+			console.log(" pstChg = \n" + pstChg);
+			console.log("str1 = \n" + str1);
+			console.log("str2 = \n" + str2);
+			console.log("str3 = \n" + str3);
+*/
+			chgTxt = str1 + str2 + str3;
 		}
 	}
 	TrksegTxt[ routeId ][ EditRtTr[ routeId ][0] -1 ] = preTxt + chgTxt + pstTxt;
