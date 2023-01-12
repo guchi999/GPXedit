@@ -61,6 +61,7 @@ const Bttn1Value = () =>{ return document.selbttn2.ChoiceOP.value; } // オペ�
 const Bttn2Value = () =>{ return document.selbttn3.ChoiceOP.value; } // オペレーション画面ボタン値取得２
 const strCount = (searchStr, str)=>{ return ( searchStr.match( new RegExp( str, "g" ) ) || [] ).length ; } // searchStr中のstrの数を求める
 function  GetDoc(Did) { return document.getElementById(Did).value; }; // エレメント(Did)値取得
+const CompMsg = () =>{let Msg = document.getElementById("message1").innerHTML; WrtMessage1 ("変更完了"); setTimeout(WrtMessage1, 500, Msg);	}
 
 // 地図表示
 function DrwMap(){
