@@ -139,8 +139,8 @@ function divide_route(){
 	}
 	routeTxt2 += Header[routeId][3];
 	delete_route( routeId );
-	make_RouteList( routeTxt1, NewNam1, 1 );
 	make_RouteList( routeTxt2, NewNam2, 1 );
+	make_RouteList( routeTxt1, NewNam1, 1 );
 	trksegNew1 = [], trksegNew2 = [], trkNaNew1 = [],  trkNaNew2 = [];
 	modeChange();
 }
@@ -313,6 +313,7 @@ function make_reverseRoute(){
 	make_RouteList( routeTxt, RevRName, 1 );
 	TrackNew = []; TrksegNew = []; TrksegTxtRev = ""; TrksegTxtFow = ""; routeTxt ="";
 	modeChange();
+	CompMsg();
 }
 
 
@@ -414,8 +415,7 @@ function change_RTname(){
 	RouteList[ routeId ][0] = NewRouteName;	
 	dsp_routeInfo( routeId );
 	modeChange();
-	let Msg = document.getElementById("message1").innerHTML;
-	WrtMessage1 ("変更完了"); setTimeout(WrtMessage1, 500, Msg);
+	CompMsg();
 }
 
 
@@ -458,6 +458,7 @@ function exec_decimate(){
 	ActRoute  = make_RouteList( routeTxt, RouteNam, 1 ); // V2.2
 	routeTxt ="";
 	dsp_routeInfo( ActRoute );
+	CompMsg();
 }
 
 
@@ -611,8 +612,6 @@ function make_DLtiles( LatLonArr ){
 
 // "EleRepl" 標高置換
 function ele_replace(){
-//	if ( Object.keys(ChoseRoute).length === 0){ return; }
-//	let routeId = Object.keys(ChoseRoute)[0];
 	let routeId = ActRoute; // V2.2
 	 // 選択ルートのlat lon により標高タイルDLリスト作成
 	let latlonAll = []; 
@@ -909,6 +908,5 @@ function wpt_edit(){
 	LmarkerIndex[ WptMark ][4] = GetDoc( "trk2" );
 	LmarkerIndex[ WptMark ][5] = GetDoc( "trk3" );
 	replace_wptTxt();
-	let Msg = document.getElementById("message1").innerHTML;
-	WrtMessage1 ("変更完了"); setTimeout(WrtMessage1, 500, Msg);
+	CompMsg();
 }
