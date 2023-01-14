@@ -629,6 +629,7 @@ function ele_replace(){
 		}
 		eleTxt_change( routeId );
 	}());
+	CompMsg();
 }
 // trksegTxtの<ele>~</ele>をeleTileの値に置き換え (V2.1 標高代替値を追加)
 function eleTxt_change( routeId ){
