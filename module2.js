@@ -767,7 +767,7 @@ function dsp_routeInfo( routeId, trckNumber, NpInfo ){
 	let PT = 0, TrackTxt = "", AddTxt = "";
 	switch (mode){
 		case "divide":
-			if ( Object.keys(DevideMark).length === 0 ){ AddTxt = `<br>(ルートの分割したいポイントをクリック)`;}	
+			if ( Object.keys(DevideMark).length === 0 ){ AddTxt = `<br>(ルートの分割ポイントをクリック)`;}	
 			WrtMessage1( `編集ルート：<b>${RouteList[routeId][0]}</b>` + AddTxt );
 			document.getElementById("trk1").value = `${RouteList[routeId][0]}-1`;
 			document.getElementById("trk2").value = `${RouteList[routeId][0]}-2`;
