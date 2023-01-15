@@ -390,7 +390,7 @@ function LineClick(e){
 	if ( DTile.length != 0){ (async function (){ await get_tile( DTile[0],  DTile[1] ); }()); }
 }
 
-// 選択ルートのclickイベント(キャンセル) 
+// 選択ルートのclickイベント(キャンセル) V2.2 
 function  SelectRouteClick(e){
 	let lineTitl = e.target.options.title;
 	let routeId =  lineTitl.split("T")[0];
@@ -678,7 +678,7 @@ function drw_MarkerLine( routeId, trckNumber, NpInfo ){
 	EditRtTr[ routeId ] = [ trckNumber, MBindex ];
 }
 
-// ウェイポイント編集ライン選択後のマーカー設置【wptEdit】
+// ウェイポイント編集ラインへのマーカー設置【wptEdit】
 function place_wptMark( routeId ){
 	if (Header[ routeId ][1] === "" ){ return; }
 	MarkerLine = ChoseRoute[ routeId ]; // modeChange()でのエラー防止
@@ -730,7 +730,7 @@ function add_wptMark( lat, lon ){
 	replace_wptTxt()
 } 
 
-// マーカー追加&削除時のwptテキスト書換【wptEdit】
+// wptマーカー追加&削除時のwptテキスト書換【wptEdit】
 function replace_wptTxt(){
 	let wptTxt = "";
 	for ( let mk in LmarkerIndex){
@@ -776,7 +776,7 @@ function dsp_routeInfo( routeId, trckNumber, NpInfo ){
 			if ( Object.keys(DevideMark).length === 0 ){ AddTxt = `<br>マーカー未設定(ルートをクリックしてマーカー設置)`;}	
 			WrtMessage1( `編集ルート：<b>${RouteList[routeId][0]}</b>` + AddTxt );
 			break;
-		case "Pinfo":  // V2.1 時間/標高は入力欄に表示、日付のみルート情報に表示するよう変更
+		case "Pinfo":  // V2.1 時間/標高は入力欄、日付のみルート情報に表示
 			if ( typeof trckNumber === "undefined" ){ 
 				WrtMessage1( `(ルートの情報表示したいポイントをクリック)` );
 				return; 
