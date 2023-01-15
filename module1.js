@@ -144,7 +144,6 @@ function make_TimeFmTrkTxt( trksegTxt ){
 	return time;
 }
 
-
 // routeIdをActRouoteにしてライン色を赤、それ以外は紫にする V2.2
 function change_ActColor( routeId ){ 
 	ActRoute = routeId;
