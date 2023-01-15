@@ -613,8 +613,7 @@ function make_DLtiles( LatLonArr ){
 // "EleRepl" 標高置換
 function ele_replace(){
 	let routeId = ActRoute; // V2.2
-	 // 選択ルートのlat lon により標高タイルDLリスト作成
-	let latlonAll = []; 
+	let latlonAll = []; // 選択ルートのlat lon により標高タイルDLリスト作成
 	for ( let i = 0; i < RouteList[ routeId ][1]; i++ ){
 		let latlonSeg = make_LatlonFmTrkTxt( TrksegTxt[ routeId ][ i ] );
 		Array.prototype.push.apply(latlonAll, latlonSeg);
@@ -852,7 +851,7 @@ function fix_edit(){
 	}
 	// TcListに従って時間を設定した変更部分でchgTxtの当該する部分を置換
 	if ( trksegTimeChk( routeId )[0] != 1 ){ // 時間データ無しは時間変更をスキップ V2.02
-		for ( let i = 0; i < TcList.length; i++ ){ // 時間変更 V2.2
+		for ( let i = 0; i < TcList.length; i++ ){ // V2.2:秒以下のデータがあるgpxでの不具合回避の為変更
 	 		let startTime = TcList[ i ].substring( TcList[ i ].indexOf("<time>") + 6, TcList[ i ].indexOf("</time>") );
 		 	let endTime = TcList[ i ].substring( TcList[ i ].lastIndexOf("<time>") + 6, TcList[ i ].lastIndexOf("</time>") );
 			let timeArr = make_timeArr( make_LatlonFmTrkTxt( TcList[ i ] ), make_EleFmTrkTxt( TcList[ i ] ), startTime, endTime );
