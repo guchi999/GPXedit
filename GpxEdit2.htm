@@ -5,9 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>GPXエディタ</title>
 	<style>
-	body {
-	   width: 620px;
-	}
 	.icon1 {
 	width: 6px; height: 6px;
 	border-radius: 50% 50% 50% 50%;
@@ -47,7 +44,9 @@
 	  font-weight: bold;
 	  display:block;
 	}
-	
+	#OParea1{
+		width: 700px;
+	}
 	</style>
 	
 	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin=""/>
@@ -58,10 +57,10 @@
 	
 </head>
 <body>
-	<span>【GPXエディタ V2.2】
+	<span>【GPXエディタ V2.3】
 	<b><a href="javascript:pupuHelp();">使い方</a></b><br>
 	</span>
-	<b>地図画面にルートファイル(GPX、KML)をドロップするか [ファイル選択]を押して入力してください。</b>
+	<b>地図画面にルートファイル(GPX、KML)をドロップするか [ファイル選択]を押して入力してください。</b><br>
 	<input type="file" multiple id="selfile"><br>
 
 	<div id="mapWin1" style="width:620px; height:350px;"></div>
@@ -115,12 +114,10 @@ function mode_sel(modeNew){
 	modeChange();
 }
 
-
 // 使い方表示
 function pupuHelp(){
-	let newwin = window.open( './usage.htm', 'GPXEdit 使い方', 'top=50, left=550, width=650, height=600' );
+	let newwin = window.open( './usage.htm', 'GPXEdit 使い方', 'top=50, left=550, width=650, height=620' );
 }
-
 
 </script>
 </body>
