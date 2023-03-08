@@ -1,5 +1,5 @@
 // ///////////////////////// 実行 //////////////////////// 
-// "jump" 地図ジャンプ
+// "jump" 地図ジャンプMath.
 function junp_select(){
 	let placeN = Number(Bttn1Value());
 	let SVconst = jumpList[ placeN ].split("/");
@@ -372,6 +372,7 @@ function chg_pointTimeEle(){
 		}
 	}
 	if ( trkptTxt != trkptTxtNew ) { TrksegTxt[ routeId ][ trackNum] = TrksegTxt[ routeId ][ trackNum].replace( trkptTxt, trkptTxtNew ); }
+	if (EleGraph.OnOff == 1){eleGraphDrw();} // V2.3
 	return;
 }
 
