@@ -52,6 +52,7 @@ var MarkerLine; // make, edit のlineレイヤ
 var WptMark = ""; // wptEdit 選択マーカーの LmarkerIndexのインデックス"番号"(テキスト)
 var ActRoute = ""; // アクティブルートの routeId
 var MergAct = ""; // 結合モードでの主アクティブルートのrouteId
+var EleGraph = {OnOff: 0, RouteID: "", Index: 0}; // 標高グラフのレジスタ V2.3
 
 // ///////////////////////// 共通関数 //////////////////////// 
 const HeaderTxt = '<?xml version="1.0" encoding="UTF-8"?>\n<gpx xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.topografix.com/GPX/1/0" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd" creator="https://github.com/guchi999">\n';
@@ -282,6 +283,7 @@ function trksegEleChk( routeId ){
 // モード変更時の初期化
 function modeChange(){
 	EditRtTr = {}; AddedMark = {}; ChoseTrack = 0; WrtMessage1("");  WrtMessage2(""); MergAct = "";
+	EleGraph = {OnOff: 0, RouteID: "", Index: 0}; 
 	if (Object.keys(LmarkerList).length != 0 ){
 		for ( let M in LmarkerList ){ mymap.removeLayer( LmarkerList[M] ); }
 		if ( ( MarkerLine ?? 0 ) != 0 ){ mymap.removeLayer(MarkerLine); } // undefinedの判定が必要
@@ -315,8 +317,8 @@ function modeChange(){
 			addBttnForm("OParea3", "divide_route()", "マーカー位置でルートを分割：", "確定" );
 			break;
 		case "remove":
-			addRadioForm("OParea1", 1, "selbttn2", [ "始点からマーカーまで削除", "マーカー間を削除", "マーカー間を残す", "マーカーから終点まで削除" ]);
-			addBttnForm("OParea2", "patial_remove()", "ルートの部分削除：", "確定" );
+			addRadioForm("OParea2", 1, "selbttn2", [ "始点からマーカーまで削除", "マーカー間を削除", "マーカー間を残す", "マーカーから終点まで削除" ]);
+			addBttnForm("OParea3", "patial_remove()", "ルートの部分削除：", "確定" );
 			break;
 		case "merge":
 			addRadioForm("OParea1", 0, "selbttn2" , [ "トラックを統合して結合", "トラックを時系列で結合" , "トラックの単純接続"]);
@@ -333,7 +335,6 @@ function modeChange(){
 			break;
 		case "TmChang":
 			addRadioForm("OParea1", 0, "selbttn2" , [ "時間変更", "時間シフト" ]);
-		//	addRadioForm("OParea2", 0, "selbttn3" , [ "ルート全体", "指定トラックのみ" ]);
 			addDateForm("OParea2", "SetTime" );
 			addBttnForm("OParea3", "change_time()", "選択ルートの時間を変更：", "変更" );
 			break;
@@ -353,9 +354,7 @@ function modeChange(){
 			addSaveLink("OParea3");
 			break;
 		case "Pinfo": // V2.1 標高入力の追加, 実行ルーチンの名前変更
-			 addOneTimeForm("OParea1", "ChgTime" );
-			 addInputForm("OParea2", "ChgEle", "ポイントの標高 (ｍ)：", "" , "8");
-			 addBttnForm("OParea3", "chg_pointTimeEle()", "", "時間/標高の変更確定" );
+			 addTimeEleForm( "OParea1", "ChgTime", "ChgEle" );
 			break;
 		case "jump":
 			let PlaceArr = [];
@@ -451,7 +450,7 @@ function addDateForm( location, idNam ){
 	LabeTxt = document.createTextNode( "日付：" );
 	LAB.appendChild(LabeTxt);
 	place.appendChild( LAB );
-	compo = document.createElement("input");
+	let compo = document.createElement("input");
 	compo.setAttribute("type","date");
 	compo.setAttribute("id", idNam + "-date");
 	place.appendChild( compo );
@@ -472,21 +471,6 @@ function addDateForm( location, idNam ){
 	compo = document.createElement("input");
 	compo.setAttribute("type","time");
 	compo.setAttribute("id", idNam + "-end");
-	place.appendChild( compo );
-}
-
-//  ポイント情報インプットボックス(time)生成
-function addOneTimeForm( location, idNam ){
-	let place = document.getElementById( location );
-	LAB = document.createElement("label");
-	LAB.setAttribute("for", idNam);
-	LabeTxt = document.createTextNode( "ポイントの時間：" );
-	LAB.appendChild(LabeTxt);
-	place.appendChild( LAB );
-	compo = document.createElement("input");
-	compo.setAttribute("type","time");
-	compo.setAttribute("step","1");
-	compo.setAttribute("id", idNam);
 	place.appendChild( compo );
 }
 
@@ -514,5 +498,41 @@ function addSaveLink( location ){
 	compo.setAttribute("href", "javascript:void(0);");
 	compo.setAttribute("onclick", "savelog();");
 	compo.appendChild( SPN );
+	place.appendChild( compo );
+}
+
+//  ポイント情報インプットボックス,実行ボタン生成 V2.3
+function addTimeEleForm( location, idNam1, idNam2 ){
+	let place = document.getElementById( location );
+	let LAB = document.createElement("label");
+	LAB.setAttribute("for", "" );
+	LabeTxt = document.createTextNode( "ポイント　時間：" );
+	LAB.appendChild(LabeTxt);
+	place.appendChild( LAB );
+	let compo = document.createElement("input");
+	compo.setAttribute("type","time");
+	compo.setAttribute("step","1");
+	compo.setAttribute("id", idNam1);
+	place.appendChild( compo );
+	LAB = document.createElement("label");
+	LAB.setAttribute("for", "" );
+	LabeTxt = document.createTextNode( "　標高(m)：" );
+	LAB.appendChild(LabeTxt);
+	place.appendChild( LAB );
+	compo = document.createElement("input");
+	compo.setAttribute("type","text");
+	compo.setAttribute("id", idNam2);
+	compo.setAttribute("maxlength", "40"); 
+	compo.setAttribute("size", "8"); 
+	compo.setAttribute("value","");
+	place.appendChild( compo );
+	let SPN = document.createElement("span");
+	SPN.appendChild(document.createTextNode( "　" ));
+	place.appendChild( SPN );
+	compo = document.createElement("input");
+	compo.setAttribute("type","button");
+	compo.setAttribute("onclick","chg_pointTimeEle()"); 
+	compo.setAttribute("size","10"); 
+	compo.setAttribute("value","時間/標高 変更確定");
 	place.appendChild( compo );
 }
