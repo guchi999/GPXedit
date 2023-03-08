@@ -776,7 +776,7 @@ function dsp_routeInfo( routeId, trckNumber, NpInfo ){
 			if ( Object.keys(DevideMark).length === 0 ){ AddTxt = `<br>マーカー未設定(ルートをクリックしてマーカー設置)`;}	
 			WrtMessage1( `編集ルート：<b>${RouteList[routeId][0]}</b>` + AddTxt );
 			break;
-		case "Pinfo":  // V2.1 時間/標高は入力欄、日付のみルート情報に表示
+		case "Pinfo":  // V2.1 時間/標高は入力欄、日付のみルート情報に表示 V2.3 標高グラフ追加
 			if ( typeof trckNumber === "undefined" ){ 
 				WrtMessage1( `(ルートの情報表示したいポイントをクリック)` );
 				return; 
@@ -789,6 +789,7 @@ function dsp_routeInfo( routeId, trckNumber, NpInfo ){
 				idx++;
 				PT = tesP[0] +1;
 			}
+			EleGraph.RouteID = routeId; EleGraph.Index = idx; // V2.3 標高グラフ用 routeID, Index保存
 			let ele = "";
 			if ( tesP[5].indexOf("<ele>") != -1 ) { ele = tesP[5].substring( tesP[5].indexOf("<ele>") +5,  tesP[5].indexOf("</ele>") ); } 
 			let Ptime = tesP[4], PtimeStr = "", PtimeStrD;
@@ -809,7 +810,8 @@ function dsp_routeInfo( routeId, trckNumber, NpInfo ){
 			( trkNN.indexOf("<name>") != -1 ) ?  NN1 = trkNN.substring( trkNN.indexOf("<name>") + 6, trkNN.indexOf("</name>") ): NN1 = "";
 			( trkNN.indexOf("<number>") != -1 ) ?  NN2 = trkNN.substring( trkNN.indexOf("<number>") + 8, trkNN.indexOf("</number>") ): NN2 = "";
 			WrtMessage1( `ルート名: <b>${RouteList[routeId][0]}</b>　トラック名,number: <b>${NN1}</b>,<b>${NN2}</b>` );
-			WrtMessage2( `日付: <b>${PtimeStrD}</b>　${accu_ele(routeId)}<br><font color="black">index: [<b>${NpInfo[2]}</b>]　緯度経度: <b>${lat}</b>,<b>${lon}</b></font>` );
+			WrtMessage2( `日付: <b>${PtimeStrD}</b>　${accu_ele(routeId)} ` + `<br><font color="black">index: [<b>${NpInfo[2]}</b>]　緯度経度: <b>${lat}</b>,<b>${lon}</b></font>`+'　<input type="button" onclick="eleGraph()" value="標高グラフ On/Off">');
+			if (EleGraph.OnOff == 1){eleGraphDrw();}
 			break;
 		case "edit":
 			if ( typeof trckNumber != "undefined" ){
@@ -901,4 +903,100 @@ function dsp_routeInfo( routeId, trckNumber, NpInfo ){
 			WrtMessage1( `編集ルート：<b>${RouteList[routeId][0]}</b>、ウェイポイント数：<b>${RouteList[routeId][2]}</b>` );
 		break;
 	}
+}
+
+// 	"Pinfo" 標高グラフ表示 V2.3
+function eleGraph(){
+	if (EleGraph.OnOff == 1){
+		for (let i= OParea4.childNodes.length-1; i>=0; i--){ OParea4.removeChild(OParea4.childNodes[i]); }
+		EleGraph.OnOff = 0;
+		return;
+	}
+	let place = document.getElementById( "OParea4" );
+	let compo = document.createElement("canvas");
+	compo.setAttribute("id", "cnvs1");
+	compo.setAttribute("width", "400");
+	compo.setAttribute("height", "180");
+	place.appendChild( compo );
+	EleGraph.OnOff = 1;
+	eleGraphDrw();
+}
+	
+function eleGraphDrw(){
+	let trkTxt = "";
+	for ( let i = 0; i < TrksegTxt[ EleGraph.RouteID ].length; i++ ){ trkTxt += TrksegTxt[ EleGraph.RouteID ][ i ]; }
+	let PtElevArr = make_EleFmTrkTxt( trkTxt );
+	// canvas定数設定
+	let cvs1 = document.getElementById("cnvs1");
+	let cntx = cvs1.getContext("2d");
+	let lft_mrgn = 70; let rit_mrgn = 30; // 左右マージン
+	let btm_mrgn = 50; let top_mrgn = 25; // 上下マージン
+	let areaW = cvs1.getAttribute("width") - lft_mrgn - rit_mrgn; // グラフエリア幅
+	let areaH = cvs1.getAttribute("height") - btm_mrgn - top_mrgn; // グラフエリア高さ
+	let X0 = lft_mrgn; let Y0 = top_mrgn + areaH; // 原点座標
+	cntx.clearRect(0, 0, cvs1.getAttribute("width"), cvs1.getAttribute("height"));
+	cntx.beginPath();
+	// X軸
+	let Xunit = areaW / PtElevArr.length; // index 1あたりのX軸pix	
+	cntx.strokeStyle = "rgb(0,0,0)";
+	cntx.font = "15px serif";
+	cntx.textAlign = "center";
+	cntx.textBaseline = "top";
+	cntx.moveTo( X0, Y0 ); cntx.lineTo( X0 + areaW, Y0 );
+	if ( PtElevArr.length > 4 ){
+		for (let i = 0; i < 5 ; i++){
+			let scalePich =Math.trunc( PtElevArr.length / 4 );
+			cntx.moveTo( X0 + i * scalePich * Xunit, Y0 );
+			cntx.lineTo( X0 + i * scalePich * Xunit, Y0-5 );
+			cntx.fillText( i * scalePich, X0 + i * scalePich * Xunit, Y0+2 );
+		}
+	}cntx.fillText("Index", X0 + areaW / 2, Y0 + btm_mrgn / 2 );
+	// Y軸
+	let Ymax = Math.round( Math.max.apply(null, PtElevArr) );
+	let Ymin = Math.round( Math.min.apply(null, PtElevArr) );
+	let Yspn = Ymax - Ymin; // Y軸スパン
+	let Yuit = Yspn / areaH ; // Y軸1pixあたりの標高
+	let YmarkPich; // Y軸スケール目盛ピッチ
+	if (Yspn > 1500){ 
+		YmarkPich = 500;
+	}else if (Yspn > 500){
+		YmarkPich = 250;
+	}else{
+		YmarkPich = 100;
+	}
+	let YmkNum = Math.trunc( Ymin / YmarkPich ) + 1; // Y軸スケール用インデックス
+	cntx.textAlign = "end";	cntx.textBaseline = "middle";
+	cntx.moveTo( X0, Y0 ); cntx.lineTo( X0, Y0 - areaH - 20 );
+	for ( i = 0; i < areaH + 20 ; i++){
+		Yindx = Ymin + i * Yuit;
+		if ( Yindx > YmkNum * YmarkPich ){
+			cntx.moveTo( X0, Y0 - i );
+			cntx.lineTo( X0+5, Y0 - i );
+			cntx.fillText(YmkNum * YmarkPich, X0 -5, Y0 - i );
+			YmkNum++;
+		}
+	}
+	cntx.save();
+	cntx.translate( lft_mrgn / 2, Y0 - areaH / 2);
+	cntx.rotate(-0.5* Math.PI);
+	cntx.fillText("	標高(m)", (lft_mrgn / 2) + 20, -15 );
+	cntx.stroke(); cntx.restore();
+	// グラフ描画
+	cntx.beginPath();
+	cntx.lineWidth = 3;
+	cntx.strokeStyle = "rgb(255,0,0)";
+	cntx.moveTo( X0, Y0 - Math.trunc( (PtElevArr[0] - Ymin) / Yuit));
+	for ( i = 0; i < PtElevArr.length; i++){
+		let Yvalue = Math.trunc( (PtElevArr[i] - Ymin)  / Yuit );
+		cntx.lineTo( X0 + i * Xunit, Y0 - Yvalue);
+	}
+	cntx.stroke(); cntx.restore();
+	//　Indexライン描画
+	cntx.beginPath();
+	cntx.lineWidth = 1;
+	cntx.strokeStyle = "rgb(0,0,255)";
+	cntx.moveTo( X0 + EleGraph.Index * Xunit, Y0 );
+	cntx.lineTo( X0 + EleGraph.Index * Xunit, Y0 - areaH - 20 )
+	cntx.stroke(); 
+	return;
 }
