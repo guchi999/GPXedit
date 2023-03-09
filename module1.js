@@ -309,7 +309,7 @@ function modeChange(){
 			addInputForm("OParea1", "route1", "ルート名：", "new_route" );
 			addInputForm("OParea2", "track1", "トラック名：", "track" );
 			addDateForm("OParea3", "SetTime" );
-			addBttnForm("OParea4", "fix_make_route()", "作成トラックを確定してルート変換：", "確定" );
+			addBttnForm("OParea4", "fix_make_route()", "作成トラックを確定してルートに変換：", "確定" );
 			break;
 		case "divide":
 			addInputForm("OParea1", "trk1", "前半ルート名：", "ルート名-1" );
