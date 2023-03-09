@@ -85,7 +85,7 @@ function rmvAddInfo( trkseg ){
 	let PT = 0, trkpt = "", ele = "", time ="", trksegTmp = "";
 	while( PT != -1 ){
 		let trkpDat = get_trkptDat( trkseg, PT );
-		 ele = ""; time ="",
+		ele = ""; time ="";
 		PT =  trkpDat[0];
 		if ( PT != -1 ){
 			trkpt = trkpDat[5].substring( 0, trkpDat[5].indexOf( ">" ) + 1 );
