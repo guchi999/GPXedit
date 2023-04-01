@@ -224,7 +224,7 @@ function kml_inport( txtStr, routeName  ){
 
 // /////////////////////////   地図操作   //////////////////////// 
 
-// 地図のclickイベント(編集マーカー及び編集ライン(青)の設置)【make】
+// 地図のclickイベント(編集マーカー及び編集ライン(青)の設置)【edit】
 function MapClick(e){
 	if ( mode != "make" ){ return; }
 	if ( Object.keys(LmarkerList).length === 0 ){
