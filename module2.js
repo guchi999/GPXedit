@@ -23,7 +23,7 @@ function getFiles(files){
 		reader.onload = event => {
 			var readTxt = event.target.result;
 			GpxFileName = file.name.split(".")[0]; // 入力ファイルの拡張子無しファイル名
-			after_file_read(readTxt, GpxFileName);
+			after_file_read(readTxt, GpxFileName, file.name);
 		}
 	}
 }
@@ -38,36 +38,30 @@ obj1.addEventListener("change",function(event){
 	reader.onload = function(){
 		readTxt = reader.result;
 		GpxFileName = input.name.split(".")[0];
-		after_file_read(readTxt, GpxFileName);
+		after_file_read(readTxt, GpxFileName, input.name);
 	 }
 },false);
 
-function after_file_read(readTxt, GpxFileName){
-	let fieChk = 0;
-	if ( readTxt.indexOf("</gpx>") != -1 && readTxt.indexOf("<gpx") != -1 ){
-		fieChk = 1;
-	}else if ( readTxt.indexOf("</kml>") != -1 && readTxt.indexOf("<kml") != -1 ){
-		fieChk = 2;
-	}
-	if ( fieChk === 1 ){ // GPXファイル
-		if ( chkRoteName(GpxFileName) ){
-			alert( GpxFileName + "は同名のルートがあります。\nルート名を変更してください。");
-		}else{
+function after_file_read(readTxt, GpxFileName, FullName){ // V2.31
+	if ( chkRoteName(GpxFileName) ){
+		alert( GpxFileName + "は同名のルートがあります。\nルート名を変更してください。");
+	}else{
+		if ( readTxt.indexOf("</gpx>") != -1 && readTxt.indexOf("<gpx") != -1 ){ // GPXファイル
 			make_RouteList(readTxt, GpxFileName);
 			dsp_routeList()
-		}
-	}else if ( fieChk === 2 ){ //KMLファイル
-		if ( chkRoteName(GpxFileName) ){
-			alert( GpxFileName + "は同名のルートがあります。\nルート名を変更してください。");
+		}else if ( readTxt.indexOf("</kml>") != -1 && readTxt.indexOf("<kml") != -1 ){ //KMLファイル
+			if ( readTxt.indexOf( "<Placemark" ) == -1 ){
+				alert( FullName + " には <Placemark> が無いので編集できません");	
+			}else{
+				kml_inport(readTxt, GpxFileName);
+				dsp_routeList()
+			}
 		}else{
-			kml_inport(readTxt, GpxFileName);
-			dsp_routeList()
+			alert( FullName + " はGPX/KMLファイルではありません");
 		}
-	}else{
-		alert( GpxFileName + "はGPX/KMLファイルではありません");
-//		document.getElementById("txt_area").value = readTxt;
 	}
 }
+
 
 // ルートプロファイルの登録 & ルート描画
 function make_RouteList( txtStr, routeName, mapfit = 0 ){
@@ -175,7 +169,11 @@ function kml_inport( txtStr, routeName  ){
 				if ( flg === 0 ){ wptArr.push( [Lon, Lat, Ele, wptNam ] ); }
 			}
 			if ( PlaceM[ j ].indexOf( "<LineString>" ) != -1 ){ // trkptArr配列
-				trkName = PlaceM[ j ].substring( PlaceM[ j ].indexOf("<name>") + 6,  PlaceM[ j ].indexOf( "</name>" ) );
+				if ( PlaceM[ j ].indexOf("<name>") != -1){ // V2.31
+					trkName = PlaceM[ j ].substring( PlaceM[ j ].indexOf("<name>") + 6,  PlaceM[ j ].indexOf( "</name>" ) );
+				}else{
+					trkName = "";
+				}
 				codtxt = PlaceM[ j ].substring( PlaceM[ j ].indexOf( "<coordinates>" ) + 13, PlaceM[ j ].indexOf( "</coordinates>" ) );
 				codtxt = codtxt.replace( /\n/g, " ");
 				let ArrTmp = codtxt.split(" "), codArr =[];
@@ -224,7 +222,7 @@ function kml_inport( txtStr, routeName  ){
 
 // /////////////////////////   地図操作   //////////////////////// 
 
-// 地図のclickイベント(編集マーカー及び編集ライン(青)の設置)【edit】
+// 地図のclickイベント(編集マーカー及び編集ライン(青)の設置)【make】
 function MapClick(e){
 	if ( mode != "make" ){ return; }
 	if ( Object.keys(LmarkerList).length === 0 ){

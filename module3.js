@@ -686,6 +686,7 @@ function fix_make_route(){
 	mymap.removeLayer(MarkerLine);
 	LmarkerList = {}; latlonArr = []; eleArr = []; timeArr = [];
 	make_RouteList( routeTxt, routeName, 1 );  // ルートの登録
+	LmarkerIndex = {};	LmarkerList = {}; // V2.31
 	modeChange();
 	dsp_routeList();
 }
