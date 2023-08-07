@@ -50,8 +50,8 @@ function after_file_read(readTxt, GpxFileName, FullName){ // V2.31
 			make_RouteList(readTxt, GpxFileName);
 			dsp_routeList()
 		}else if ( readTxt.indexOf("</kml>") != -1 && readTxt.indexOf("<kml") != -1 ){ //KMLファイル
-			if ( readTxt.indexOf( "<Placemark" ) == -1 ){
-				alert( FullName + " には <Placemark> が無いので編集できません");	
+			if ( readTxt.indexOf( "<LineString>" ) == -1 ){
+				alert( FullName + " には <LineString> が無いので編集できません"); // V2.32
 			}else{
 				kml_inport(readTxt, GpxFileName);
 				dsp_routeList()
@@ -138,7 +138,7 @@ function check_wpt( entTxt ){
 	return [ Htxt, Wtxt,  Ttxt ];
 }
 
-// KML→GPX変換
+// KML→GPX変換 V2.32で修正
 function kml_inport( txtStr, routeName  ){
 	let Folder = [], routeTxt = HeaderTxt, trkTxt = "", wptTxt = "";;
 	if ( txtStr.indexOf( "<Folder>" ) != -1 ){ // Folder(トラック)配列作成(txtStr:<Folder>で分割)
@@ -168,7 +168,8 @@ function kml_inport( txtStr, routeName  ){
 				for (let k = 0; k < wptArr.length; k++){ if (wptArr[ k ][0] === Lon && wptArr[ k ][1] === Lat ){ flg = 1 } }
 				if ( flg === 0 ){ wptArr.push( [Lon, Lat, Ele, wptNam ] ); }
 			}
-			if ( PlaceM[ j ].indexOf( "<LineString>" ) != -1 ){ // trkptArr配列
+			if ( PlaceM[ j ].indexOf( "<LineString>" ) != -1 ){ // LineStringでtrkptArr配列作成
+				trkptArr = []; // V2.32
 				if ( PlaceM[ j ].indexOf("<name>") != -1){ // V2.31
 					trkName = PlaceM[ j ].substring( PlaceM[ j ].indexOf("<name>") + 6,  PlaceM[ j ].indexOf( "</name>" ) );
 				}else{
@@ -176,7 +177,7 @@ function kml_inport( txtStr, routeName  ){
 				}
 				codtxt = PlaceM[ j ].substring( PlaceM[ j ].indexOf( "<coordinates>" ) + 13, PlaceM[ j ].indexOf( "</coordinates>" ) );
 				codtxt = codtxt.replace( /\n/g, " ");
-				let ArrTmp = codtxt.split(" "), codArr =[];
+				let ArrTmp = codtxt.split(" ");
 				for ( let k = 0; k < ArrTmp.length; k++ ){ // trkpt毎の配列作成(codArr)
 					let LonLatEle = ArrTmp[ k ].split(",");
 					if (LonLatEle.length > 1 ){ 
@@ -184,6 +185,12 @@ function kml_inport( txtStr, routeName  ){
 						trkptArr.push( [ Number(LonLatEle[0]), Number(LonLatEle[1]), Number(LonLatEle[2]) ] ); 
 					}
 				}
+				trkTxt += `<trk><name>${trkName}</name><trkseg>\n`; // trkptArrを<trk>txtに変換
+				for ( let j = 0; j < trkptArr.length; j++ ){
+					trkTxt += `<trkpt lat="${trkptArr[ j ][1]}" lon="${trkptArr[ j ][0]}">`;
+					trkTxt += `<ele>${trkptArr[ j ][2]}</ele></trkpt>\n`
+				}
+				trkTxt += "</trkseg></trk>\n";
 			}
 		}
 		for ( let j = 0; j < wptArr.length; j++ ){ // wptがtrkptArrに無ければ直近trkptに追加
@@ -209,12 +216,6 @@ function kml_inport( txtStr, routeName  ){
 			wptTxt += `<wpt lat="${wptArr[ j ][1]}" lon="${wptArr[ j ][0]}" >\n<name>${wptArr[ j ][3]}</name>\n`
 			wptTxt += `<<cmt></cmt>\n<desc></desc>\n</wpt>\n`;
 		}
-		trkTxt += `<trk><name>${trkName}</name><trkseg>\n`;
-		for ( let j = 0; j < trkptArr.length; j++ ){
-			trkTxt += `<trkpt lat="${trkptArr[ j ][1]}" lon="${trkptArr[ j ][0]}">`;
-			trkTxt += `<ele>${trkptArr[ j ][2]}</ele></trkpt>\n`
-		}
-		trkTxt += "</trkseg></trk>\n";
 	}
 	routeTxt += wptTxt + trkTxt + "</gpx>\n";
 	make_RouteList( routeTxt, routeName );
