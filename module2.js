@@ -70,6 +70,14 @@ function make_RouteList( txtStr, routeName, mapfit = 0 ){
 	RouteList[routeId] = [ routeName, strCount(txtStr, '</trk>'), strCount(txtStr, '</wpt>') ];
 	let HeadWpt = check_wpt( txtStr );
 	Header[routeId] = [ HeadWpt[0], HeadWpt[1], txtStr.substring( txtStr.lastIndexOf("</trkseg>"),  txtStr.lastIndexOf("</gpx>") ), txtStr.substring( txtStr.lastIndexOf("</gpx>") ) ];
+
+	while ( HeadWpt[2].indexOf("<trk ") != -1 ){ // V2.33 trkタグ中に記載された情報を除去
+		let rPoint1 = HeadWpt[2].indexOf("<trk ");
+		let rPoint2 = HeadWpt[2].indexOf(">", rPoint1);
+		let repStr = HeadWpt[2].substring(rPoint1, rPoint2);
+		HeadWpt[2] = HeadWpt[2].replace(repStr, "<trk>");
+	}
+	
 	let txtBlock = HeadWpt[2].split('<trk>');
 	let trkName = [], trkSeg = [], trkptNum = [];
 	for (let i = 1; i < txtBlock.length; i++){
