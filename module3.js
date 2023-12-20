@@ -163,7 +163,6 @@ function extract_wpt( routeId, trksegTxt ){
 	if ( wptOrg === "" ){ return ""; }
 	let wptOrAr = wptOrg.split("</wpt>"), wptNew = "";
 	for ( let i = 0; i < wptOrAr.length; i++){
-		wptOrAr[ i ]
 		let Latpt = wptOrAr[ i ].indexOf("lat="); let Lonpt = wptOrAr[ i ].indexOf("lon=");
 		let strLatWpt = wptOrAr[ i ].substring( Latpt+5, wptOrAr[ i ].indexOf('"', Latpt+5) );
 		let strLonWpt = wptOrAr[ i ].substring( Lonpt+5, wptOrAr[ i ].indexOf('"', Lonpt+5) );
@@ -197,7 +196,7 @@ function patial_remove(){
 		if ( DevideMark["0"].track > DevideMark["1"].track ){ Mark1 = "1"; Mark2 = "0"; }
 		if ( ( DevideMark["0"].track === DevideMark["1"].track ) && ( DevideMark["0"].indx > DevideMark["1"].indx ) ){ Mark1 = "1"; Mark2 = "0"; }
 	}
-	let trksegNew = [], trkNaNew = [], CutRes = [], trksegPstCut = [], trkNaPstCut = [];
+	let trksegNew = [], trkNaNew = [], CutRes = [];
 	trksegNew = TrksegTxt[ routeId ].slice();
 	trkNaNew = Track[ routeId ].slice();
 	let numbOfTrack = trkNaNew.length;
@@ -234,7 +233,6 @@ function patial_remove(){
 		routeTxt += trkNaNew[ i ] + trksegNew[ i ] + Header[routeId][2];
 	}
 	routeTxt += Header[routeId][3];
-	let tmp = strCount(routeTxt, "</trkpt>");
 	if ( strCount(routeTxt, "</trkpt>") < 2 ){ return;}
 	let Name = RouteList[ routeId ][0]
 	delete_route( routeId );
@@ -704,7 +702,7 @@ function change_time(){
 		let timChk = endTimObj.getTime() - startTimObj.getTime();	
 		if (( timChk <= 0) || isNaN(timChk)){ alert("正しい時間をセットしてください"); return; }	
 	}else{
-		if ( TcDate == ""  || TcStartTime == "" ){ alert("正しい時間をセットしてください"); return; }
+		if ( TcDate == ""  && TcStartTime == "" ){ alert("シフトする日付か開始時間をセットしてください"); return; } // シフトが日付または時間のみの場合の入力簡易化 V2.34
 	}
 	let routeId = ActRoute; //V2.2
 	if (Bttn1Value() === "0" ){ // 時間変更
@@ -731,6 +729,9 @@ function change_time(){
 			return;
 		}
 		let TKseg = unify_track( routeId )[1];
+		// シフトが日付または時間のみの場合の入力簡易化 V2.34	
+		if ( TcDate === "" ) startTime = "BD " + TcStartTime;
+		if ( TcStartTime === "" ) startTime = TcDate + " " + "BT";
 		TKseg = segTime_shuft( TKseg, startTime );
 		for ( let i = 0; i < RouteList[ routeId ][1]; i++){
 			let NumOfLine = strCount(TrksegTxt[ routeId ][ i ], "</trkpt>" );
@@ -761,6 +762,19 @@ function SegTimeTxt_change( trksegTxt, timeArr ){
 // trksegTxtの<time>～</time>をstartTime分シフトして置き換える
 function segTime_shuft( trksegTxt, startTime ){
 	let timeArr = make_TimeFmTrkTxt( trksegTxt );
+	// 日付または時間がブランクの時は、オリジナルの日付または時間を使うための変更 V2.34
+	let OrgTopTime = new Date( trksegTxt.substring( trksegTxt.indexOf( "<time>" ) + 6, trksegTxt.indexOf( "</time>" )));
+	let OrgStTxt = OrgTopTime.toLocaleString();
+	let secTxt = ":" + OrgTopTime.getSeconds(); // 秒を0にシフトしないようにオリジナルの時間から秒の桁を取り出す V2.34
+	if ( startTime.indexOf( "BD" ) != -1 ){
+		startTime = startTime.replace( "BD", OrgStTxt.split(" ")[0] );
+		startTime = startTime + secTxt; 
+	}else if ( startTime.indexOf( "BT" ) != -1 ){
+		startTime = startTime.replace( "BT", OrgStTxt.split(" ")[1] );
+	}else{
+		startTime = startTime + secTxt;
+	}
+
 	TimeTrkTop = new Date( trksegTxt.substring( trksegTxt.indexOf( "<time>" ) + 6, trksegTxt.indexOf( "</time>" ) ) )
 	TimeStart =  new Date( startTime );
 	let deltaT = TimeTrkTop.getTime() - TimeStart.getTime();
