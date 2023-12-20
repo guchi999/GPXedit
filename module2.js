@@ -146,7 +146,7 @@ function check_wpt( entTxt ){
 	return [ Htxt, Wtxt,  Ttxt ];
 }
 
-// KML→GPX変換 V2.32で修正
+// KML→GPX変換 V2.34で修正
 function kml_inport( txtStr, routeName  ){
 	let Folder = [], routeTxt = HeaderTxt, trkTxt = "", wptTxt = "";;
 	if ( txtStr.indexOf( "<Folder>" ) != -1 ){ // Folder(トラック)配列作成(txtStr:<Folder>で分割)
@@ -201,25 +201,32 @@ function kml_inport( txtStr, routeName  ){
 				trkTxt += "</trkseg></trk>\n";
 			}
 		}
-		for ( let j = 0; j < wptArr.length; j++ ){ // wptがtrkptArrに無ければ直近trkptに追加
+		for ( let j = 0; j < wptArr.length; j++ ){ // wptがトラック上になければwptを直近trkptに移動　V2.34
 			let MinIdx = 0, d1 = 800;
 			for ( let k = 0; k < trkptArr.length; k++ ){
 				let d2 = Math.abs( wptArr[ j ][0] - trkptArr[ k ][0] ) ** 2 + Math.abs( wptArr[ j ][1] - trkptArr[ k ][1]  ) ** 2;
-				if ( d2 === 0 ){ MinIdx = k; break; }
+				if ( d2 === 0 ){ MinIdx = k; d1 = 0; break; }
 				if ( d1 > d2 ){ MinIdx = k; d1 = d2; }
 			}
-			if ( d1 != 0 ){
-				if ( MinIdx === 0 ){ 
-					trkptArr.unshift( wptArr[ j ] ); 
-				}else if ( MinIdx === trkptArr.length -1 ){
-					 trkptArr.push( wptArr[ j ] ); 
-				}else{
-					let d3 = Math.abs( wptArr[ j ][0] - trkptArr[ MinIdx -1 ][0] ) ** 2 + Math.abs( wptArr[ j ][1] - trkptArr[ MinIdx -1 ][1]  ) ** 2;
-					let d4 = Math.abs( wptArr[ j ][0] - trkptArr[ MinIdx +1 ][0] ) ** 2 + Math.abs( wptArr[ j ][1] - trkptArr[ MinIdx +1 ][1]  ) ** 2;
-					( d3 >= d4 ) ? trkptArr.splice( MinIdx -1, 0, wptArr[ j ] ): trkptArr.splice( MinIdx +1, 0, wptArr[ j ] ); 
+			if ( d1 != 0 ){ // wptとtrkptArrの緯度経度が一致していなければwptの緯度経度を直近trkptのものにする　V2.34
+				wptArr[ j ][0] = trkptArr[ MinIdx ][0];
+				wptArr[ j ][1] = trkptArr[ MinIdx ][1];
+			}
+		}
+		// 移動したwptが重複する場合は名前を接続し、重複wptを削除　V2.34
+		for ( let j = 0; j < wptArr.length; j++ ){
+			for ( let k = j + 1; k < wptArr.length; k++ ){
+				if ( wptArr[ j ][0] ===  wptArr[ k ][0] && wptArr[ j ][1] === wptArr[ k ][1] ){
+					wptArr[ j ][3] = wptArr[ j ][3] + "/" + wptArr[ k ][3];
+					wptArr.splice([k], 1);
 				}
 			}
 		}
+		if ( wptArr[ wptArr.length-1 ][0] ===  wptArr[ wptArr.length-2 ][0] && wptArr[ wptArr.length-1 ][1] === wptArr[ wptArr.length-2 ][1] ){
+			wptArr[ wptArr.length-2 ][3] = wptArr[ wptArr.length-2 ][3] + "/" + wptArr[ wptArr.length-1 ][3];
+			wptArr.pop();
+		}
+		// wptArrからwptTxtを作成
 		for ( let j = 0; j < wptArr.length; j++ ){
 			wptTxt += `<wpt lat="${wptArr[ j ][1]}" lon="${wptArr[ j ][0]}" >\n<name>${wptArr[ j ][3]}</name>\n`
 			wptTxt += `<<cmt></cmt>\n<desc></desc>\n</wpt>\n`;
