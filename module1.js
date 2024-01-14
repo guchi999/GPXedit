@@ -6,7 +6,7 @@
 	const UpTh1  = 0.04;	//上り傾斜の閾値(4m/100m)
 	const UpTh2  = 0.5;	//急な上り傾斜の閾値(50m/100m)
 	const DwnTh1 = -0.04;	//下り傾斜の閾値
-	const DwnTh2 = 0.5;	//急な下り傾斜の閾値
+	const DwnTh2 = -0.5;	//急な下り傾斜の閾値
 
 	const jumpList = [
 	"丹沢/12/35.468296/139.159901",
